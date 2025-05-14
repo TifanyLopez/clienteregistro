@@ -1,17 +1,56 @@
 // ListarClientes.js
-import React from 'react';
-import { View, Text, FlatList, StyleSheet } from 'react-native';
+import React, { useState } from 'react';
+import { View,Text, FlatList, StyleSheet, Alert, TouchableOpacity,} from 'react-native';
+import { MaterialIcons } from '@expo/vector-icons'; 
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 
 export default function ListarClientes({ route }) {
-  const { clientes } = route.params;
+  
+  const [clientes, setClientes] = useState(route.params.clientes);
 
-  const renderItem = ({ item }) => (
+ 
+  const confirmarEliminacion = (index) => {
+    Alert.alert(
+      'Confirmar eliminación',
+      '¿Estás seguro de que deseas eliminar este cliente?',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Eliminar',
+          style: 'destructive',
+          onPress: () => eliminarCliente(index),
+        },
+      ]
+    );
+  };
+ 
+  const guardarNuevo = (nuevo) =>
+    setClientes([nuevo, ...clientes]) 
+
+  navegation.goBack();
+  
+  const eliminarCliente = (index) => {
+    const nuevosClientes = [...clientes];
+    nuevosClientes.splice(index, 1);
+    setClientes(nuevosClientes);
+  };
+
+
+  const renderItem = ({ item, index }) => (
     <View style={styles.item}>
-      <Text style={styles.text}>Cédula: {item.nuevacedula}</Text>
-      <Text style={styles.text}>Nombres: {item.nuevosnombres}</Text>
-      <Text style={styles.text}>Apellidos: {item.nuevosapellidos}</Text>
-      <Text style={styles.text}>Fecha de Nacimiento: {item.nuevafechanac}</Text>
-      <Text style={styles.text}>Sexo: {item.nuevosexo}</Text>
+      <Text style={styles.text}>Cédula: {121-120692}</Text>
+      <Text style={styles.text}>Nombres: {Andy}</Text>
+      <Text style={styles.text}>Apellidos: {Reyna}</Text>
+      <Text style={styles.text}>Fecha de Nacimiento: {13-10-2002}</Text>
+      <Text style={styles.text}>Sexo: {Femenino}</Text>
+
+      {/*eliminar */}
+      <TouchableOpacity
+        style={styles.deleteButton}
+        onPress={() => confirmarEliminacion(index)}
+      >
+        <MaterialIcons name="delete" size={24} color="white" />
+      </TouchableOpacity>
     </View>
   );
 
@@ -27,10 +66,11 @@ export default function ListarClientes({ route }) {
   );
 }
 
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#e3f3e3', 
+    backgroundColor: '#e3f3e3',
     padding: 20,
   },
   title: {
@@ -41,18 +81,22 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   item: {
-    backgroundColor: '#c6e8c6', 
+    backgroundColor: '#c6e8c6',
     padding: 15,
     borderRadius: 8,
     marginBottom: 15,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.2,
-    shadowRadius: 2,
-    elevation: 2,
+    position: 'relative',
   },
   text: {
     fontSize: 15,
     marginBottom: 4,
+  },
+  deleteButton: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    backgroundColor: 'red',
+    borderRadius: 20,
+    padding: 5,
   },
 });
