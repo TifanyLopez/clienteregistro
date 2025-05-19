@@ -1,62 +1,97 @@
-// ListarClientes.js
 import React, { useState } from 'react';
-import { View,Text, FlatList, StyleSheet, Alert, TouchableOpacity,} from 'react-native';
-import { MaterialIcons } from '@expo/vector-icons'; 
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import { View, Text, FlatList, StyleSheet, Alert, TouchableOpacity, } from 'react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons'; 
 
-export default function ListarClientes({ route }) {
-  
-  const [clientes, setClientes] = useState(route.params.clientes);
+export default function ListarClientes({ navigation }) {
+  const [clientes, setClientes] = useState([
+    {
+      nuevacedula: '001-150504-1000K',
+      nuevosnombres: 'Ivania Socorro',
+      nuevosapellidos: 'Hurtado Aragon',
+      nuevafechanac: '1884-05-22',
+      nuevosexo: 'Femenino',
+    },
+    {
+      nuevacedula: '002-131002-1000S',
+      nuevosnombres: 'Stefano Liam',
+      nuevosapellidos: 'Reyes Casco',
+      nuevafechanac: '2000-02-10',
+      nuevosexo: 'Masculino',
+    },
+    {
+      nuevacedula: '003-040803-1000J',
+      nuevosnombres: 'Leyla Sofia',
+      nuevosapellidos: 'Lopez Aragon',
+      nuevafechanac: '2004-03-25',
+      nuevosexo: 'Femenino',
+    },
+    {
+      nuevacedula: '004-021204-1000M',
+      nuevosnombres: 'Ian Antonio',
+      nuevosapellidos: 'Lopez Alvarez',
+      nuevafechanac: '2002-07-05',
+      nuevosexo: 'Masculino',
+    },
+  ]);
 
- 
-  const confirmarEliminacion = (index) => {
+  const guardarNuevo = (nuevoCliente) => {
+    setClientes([
+      ...clientes, nuevoCliente
+    ]);
+  };
+
+  const eliminarCliente = (index) => {
     Alert.alert(
       'Confirmar eliminación',
-      '¿Estás seguro de que deseas eliminar este cliente?',
+      '¿Está seguro de que desea eliminar este cliente?',
       [
         { text: 'Cancelar', style: 'cancel' },
         {
           text: 'Eliminar',
+          onPress: () => {
+            const nuevaLista = [...clientes];
+            nuevaLista.splice(index, 1);
+            setClientes(nuevaLista);
+          },
           style: 'destructive',
-          onPress: () => eliminarCliente(index),
         },
       ]
     );
   };
- 
-  const guardarNuevo = (nuevo) =>
-    setClientes([nuevo, ...clientes]) 
-
-  navegation.goBack();
-  
-  const eliminarCliente = (index) => {
-    const nuevosClientes = [...clientes];
-    nuevosClientes.splice(index, 1);
-    setClientes(nuevosClientes);
-  };
-
 
   const renderItem = ({ item, index }) => (
     <View style={styles.item}>
-      <Text style={styles.text}>Cédula: {121-120692}</Text>
-      <Text style={styles.text}>Nombres: {Andy}</Text>
-      <Text style={styles.text}>Apellidos: {Reyna}</Text>
-      <Text style={styles.text}>Fecha de Nacimiento: {13-10-2002}</Text>
-      <Text style={styles.text}>Sexo: {Femenino}</Text>
-
-      {/*eliminar */}
-      <TouchableOpacity
-        style={styles.deleteButton}
-        onPress={() => confirmarEliminacion(index)}
-      >
-        <MaterialIcons name="delete" size={24} color="white" />
+      <View style={{ flex: 1 }}>
+        <Text style={styles.text}>
+          <Text style={styles.label}>Cédula:</Text> {item.nuevacedula}
+        </Text>
+        <Text style={styles.text}>
+          <Text style={styles.label}>Nombres:</Text> {item.nuevosnombres}
+        </Text>
+        <Text style={styles.text}>
+          <Text style={styles.label}>Apellidos:</Text> {item.nuevosapellidos}
+        </Text>
+        <Text style={styles.text}>
+          <Text style={styles.label}>Fecha de nacimiento:</Text> {item.nuevafechanac}
+        </Text>
+        <Text style={styles.text}>
+          <Text style={styles.label}>Sexo:</Text> {item.nuevosexo}
+        </Text>
+      </View>
+      <TouchableOpacity onPress={() => eliminarCliente(index)}>
+        <MaterialCommunityIcons name="trash-can-outline" size={36} color="red" />
       </TouchableOpacity>
     </View>
   );
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Lista de Clientes</Text>
+      <View style={styles.header}>
+        <Text style={styles.title}>Lista de Clientes</Text>
+        <TouchableOpacity onPress={() => navigation.navigate('RegistrarCliente', { guardarNuevo })}>
+          <MaterialCommunityIcons name="account-plus-outline" size={30} color="green" />
+        </TouchableOpacity>
+      </View>
       <FlatList
         data={clientes}
         keyExtractor={(item, index) => index.toString()}
@@ -66,37 +101,43 @@ export default function ListarClientes({ route }) {
   );
 }
 
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#e3f3e3',
+    backgroundColor: '#c6d0c7', 
     padding: 20,
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 15,
   },
   title: {
     fontSize: 22,
     fontWeight: 'bold',
-    color: 'green',
-    textAlign: 'center',
-    marginBottom: 20,
+    color: '#0077b6', 
   },
   item: {
-    backgroundColor: '#c6e8c6',
+    backgroundColor: '#bde0fe', 
     padding: 15,
     borderRadius: 8,
     marginBottom: 15,
-    position: 'relative',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+    elevation: 2,
   },
   text: {
     fontSize: 15,
     marginBottom: 4,
+    color: '#333',
   },
-  deleteButton: {
-    position: 'absolute',
-    top: 10,
-    right: 10,
-    backgroundColor: 'red',
-    borderRadius: 20,
-    padding: 5,
+  label: {
+    fontWeight: 'bold',
+    color: '#516091', 
   },
 });

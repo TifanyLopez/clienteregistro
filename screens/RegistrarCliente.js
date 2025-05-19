@@ -3,18 +3,24 @@ import { StyleSheet, Text, View, TextInput, Button, Alert } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { useNavigation } from '@react-navigation/native';
 
-export default function App() {
+
+export default function RegistrarCliente({ route }) {
+
+  const { guardarNuevo } = route.params;
+
   const [cedula, setCedula] = useState('');
   const [nombres, setNombres] = useState('');
   const [apellidos, setApellidos] = useState('');
   const [fechaNacimiento, setFechaNacimiento] = useState('');
   const [sexo, setSexo] = useState('');
-  const [clientes, setClientes] = useState([]);
+
 
   const navigation = useNavigation(); 
 
   const Guardar = () => {
     if (!cedula || !nombres) return null;
+
+    
     const nuevoCliente = {
       nuevacedula: cedula,
       nuevosnombres: nombres,
@@ -23,26 +29,22 @@ export default function App() {
       nuevosexo: sexo,
     };
 
-    setClientes([nuevoCliente, ...clientes]);
-    Alert.alert('Datos almacenados', `
-      Cédula: ${cedula}
-      Nombres: ${nombres}
-      Apellidos: ${apellidos}
-      Fecha Nacimiento: ${fechaNacimiento}
-      Sexo: ${sexo}
-    `);
-
+    guardarNuevo(nuevoCliente);
+    Alert.alert('Datos almacenados');
     setCedula('');
     setNombres('');
     setApellidos('');
     setFechaNacimiento('');
     setSexo('');
+
+    navigation.goBack();
   };
 
   
 
   return (
-    <View style={styles.contenedor}>
+    <View style={styles.contenedor}> 
+    <Text style={styles.label}>Rejistro de Datos de clientes</Text>
       <Text style={styles.label}>Cédula:</Text>
       <TextInput
         style={styles.input}
@@ -89,61 +91,52 @@ export default function App() {
 
 <View style={styles.botonSeparado}>
   <Button
-    title="Guardar Cliente"
+    title="Guardar"
     onPress={Guardar}
     color="green"
   />
 </View>
 
-<View style={styles.botonSeparado}>
-  <Button
-    title="Listar Clientes"
-    onPress={() => navigation.navigate('ListarClientes', { clientes })}
-    color="orange"
-  />
-</View>
 
     </View>
   );
 }
+
 const styles = StyleSheet.create({
   contenedor: {
     flex: 1,
-    backgroundColor: '#e3f3e3',
+    backgroundColor: '#d6eadf', 
     padding: 20,
   },
-  
-  
-
   titulo: {
     fontSize: 22,
     fontWeight: 'bold',
-    color: 'green',
+    color: '#cdb4bd', 
     textAlign: 'center',
     marginBottom: 20,
   },
   label: {
     fontWeight: 'bold',
     marginBottom: 5,
-    color: '#333',
+    color: '#020202', 
   },
   input: {
     borderWidth: 1,
-    borderColor: 'green',
+    borderColor: '#020202',
     padding: 10,
     borderRadius: 5,
     marginBottom: 15,
-    backgroundColor: '#fff',
+    backgroundColor: '#fff0f5',
   },
   picker: {
     borderWidth: 1,
-    borderColor: 'green',
+    borderColor: '#020202',
     borderRadius: 5,
     marginBottom: 20,
-    backgroundColor: '#fff',
+    backgroundColor: '#fff0f5',
   },
   boton: {
-    backgroundColor: 'green',
+    backgroundColor: '#d63384',
     padding: 15,
     borderRadius: 8,
     alignItems: 'center',
@@ -160,7 +153,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   tarjetaCliente: {
-    backgroundColor: '#c6e8c6',
+    backgroundColor: '#fdd9ec',
     padding: 15,
     borderRadius: 8,
     marginBottom: 15,
@@ -175,7 +168,6 @@ const styles = StyleSheet.create({
     marginBottom: 3,
   },
   botonSeparado: {
-  marginBottom: 15,
-}
-
+    marginBottom: 15,
+  },
 });
