@@ -1,12 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, TextInput, Button, Alert } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import { collection, addDoc, doc, updateDoc } from 'firebase/firestore';
+import { db } from '../BasedeDatos/Firebase';
 
-
-export default function RegistrarCliente({ route }) {
-
-  const { guardarNuevo } = route.params;
+export default function RegistrarCliente() {
+  const navigation = useNavigation();
+  const route = useRoute();
+  const cliente = route.params?.cliente;
 
   const [cedula, setCedula] = useState('');
   const [nombres, setNombres] = useState('');
@@ -14,14 +16,23 @@ export default function RegistrarCliente({ route }) {
   const [fechaNacimiento, setFechaNacimiento] = useState('');
   const [sexo, setSexo] = useState('');
 
+  useEffect(() => {
+    if (cliente) {
+      setCedula(cliente.nuevacedula);
+      setNombres(cliente.nuevosnombres);
+      setApellidos(cliente.nuevosapellidos);
+      setFechaNacimiento(cliente.nuevafechanac);
+      setSexo(cliente.nuevosexo);
+    }
+  }, [cliente]);
 
-  const navigation = useNavigation(); 
+  const guardarCliente = async () => {
+    if (!cedula || !nombres) {
+      Alert.alert("Error", "Cédula y nombres son obligatorios.");
+      return;
+    }
 
-  const Guardar = () => {
-    if (!cedula || !nombres) return null;
-
-    
-    const nuevoCliente = {
+    const data = {
       nuevacedula: cedula,
       nuevosnombres: nombres,
       nuevosapellidos: apellidos,
@@ -29,22 +40,28 @@ export default function RegistrarCliente({ route }) {
       nuevosexo: sexo,
     };
 
-    guardarNuevo(nuevoCliente);
-    Alert.alert('Datos almacenados');
-    setCedula('');
-    setNombres('');
-    setApellidos('');
-    setFechaNacimiento('');
-    setSexo('');
+    try {
+      if (cliente && cliente.id) {
+        // Edito cliente existente
+        const ref = doc(db, 'clientes', cliente.id);
+        await updateDoc(ref, data);
+        Alert.alert("Cliente actualizado");
+      } else {
+        // Nuevo cliente
+        await addDoc(collection(db, 'clientes'), data);
+        Alert.alert("Cliente guardado");
+      }
 
-    navigation.goBack();
+      navigation.goBack();
+    } catch (error) {
+      console.error("Error guardando cliente:", error);
+    }
   };
 
-  
-
   return (
-    <View style={styles.contenedor}> 
-    <Text style={styles.label}>Rejistro de Datos de clientes</Text>
+    <View style={styles.contenedor}>
+      <Text style={styles.label}>Registro de Datos de Clientes</Text>
+
       <Text style={styles.label}>Cédula:</Text>
       <TextInput
         style={styles.input}
@@ -89,15 +106,13 @@ export default function RegistrarCliente({ route }) {
         </Picker>
       </View>
 
-<View style={styles.botonSeparado}>
-  <Button
-    title="Guardar"
-    onPress={Guardar}
-    color="green"
-  />
-</View>
-
-
+      <View style={styles.botonSeparado}>
+        <Button
+          title={cliente ? "Actualizar" : "Guardar"}
+          onPress={guardarCliente}
+          color="green"
+        />
+      </View>
     </View>
   );
 }
@@ -105,67 +120,28 @@ export default function RegistrarCliente({ route }) {
 const styles = StyleSheet.create({
   contenedor: {
     flex: 1,
-    backgroundColor: '#d6eadf', 
+    backgroundColor: '#fdeaf2',
     padding: 20,
-  },
-  titulo: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: '#cdb4bd', 
-    textAlign: 'center',
-    marginBottom: 20,
   },
   label: {
     fontWeight: 'bold',
     marginBottom: 5,
-    color: '#020202', 
+    color: '#333',
   },
   input: {
     borderWidth: 1,
-    borderColor: '#020202',
+    borderColor: 'black',
     padding: 10,
     borderRadius: 5,
     marginBottom: 15,
-    backgroundColor: '#fff0f5',
+    backgroundColor: '#fff',
   },
   picker: {
     borderWidth: 1,
-    borderColor: '#020202',
+    borderColor: 'blue',
     borderRadius: 5,
     marginBottom: 20,
-    backgroundColor: '#fff0f5',
-  },
-  boton: {
-    backgroundColor: '#d63384',
-    padding: 15,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginBottom: 15,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 3,
-    elevation: 3,
-  },
-  botonTexto: {
-    color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 16,
-  },
-  tarjetaCliente: {
-    backgroundColor: '#fdd9ec',
-    padding: 15,
-    borderRadius: 8,
-    marginBottom: 15,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.2,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  textoCliente: {
-    fontSize: 15,
-    marginBottom: 3,
+    backgroundColor: '#fff',
   },
   botonSeparado: {
     marginBottom: 15,
